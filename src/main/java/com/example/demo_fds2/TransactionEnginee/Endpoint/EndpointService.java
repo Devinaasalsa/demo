@@ -24,20 +24,16 @@ protected final EndpointRepository endpointRepository;
     @Autowired
     private TransSpecService transSpecService;
 
-    public List<Endpoint> findAll(long configId){
-        return this.endpointRepository.findAllByConfigIdOrderByUrlAsc(configId);
+    public List<Endpoint> findAll(){
+        return this.endpointRepository.findAll();
     }
 
-    public List<Endpoint> findBySpecId(Long specId){
-        TransSpec transSpec = transSpecService.findOne(specId);
-        if(transSpec == null){
-            return new ArrayList<>();
-        }
-        return endpointRepository.findBySpecId(transSpec);
+    public List<Endpoint> getEndpointsBySpecId(Long specId) {
+        return endpointRepository.findBySpec_SpecId(specId);
     }
 
-    public List<Endpoint> getEndpointsByConfigId(NetworkCfg configId) {
-        return endpointRepository.findByConfigId(configId);
+    public List<Endpoint> getEndpointsByConfigId(Long configId) {
+        return endpointRepository.findByConfig_ConfigId(configId);
     }
     
     public Endpoint save(Endpoint reqBody){
@@ -66,11 +62,11 @@ protected final EndpointRepository endpointRepository;
     public List<Endpoint> findByUrl(String url){
         return endpointRepository.findByUrlContainsOrderByEndpointIdAsc(url);
     }
-
-    
     
     public void removeOne(Long endpointId){
         endpointRepository.deleteById(endpointId);
     }
+
+
 }
 

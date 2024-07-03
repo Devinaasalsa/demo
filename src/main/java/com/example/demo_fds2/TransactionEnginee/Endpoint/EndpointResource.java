@@ -26,9 +26,11 @@ import com.example.demo_fds2.TransactionEnginee.Dto.ResponseData;
 import com.example.demo_fds2.TransactionEnginee.NetworkCfg.NetworkCfg;
 import com.example.demo_fds2.TransactionEnginee.TransSpec.TransSpec;
 
+import lombok.extern.slf4j.Slf4j;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/endpoint")
 public class EndpointResource extends ResponseResourceEntity<Object> {
@@ -43,47 +45,12 @@ public class EndpointResource extends ResponseResourceEntity<Object> {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("list/{id}")
-    public ResponseEntity<?> fetchAll(@PathVariable("id") long configId) {
-        HttpStatus httpStatus;
-        String httpMessage;
-        try {
-            List<Endpoint> fetchedData = endpointService.findAll(configId);
-            httpStatus = OK;
-            httpMessage = "Channel Endpoint Fetched Successfully";
-            return responseWithListObjectData(httpStatus, httpMessage, fetchedData);
-        } catch (Exception e) {
-            e.printStackTrace();
-            httpStatus = INTERNAL_SERVER_ERROR;
-            httpMessage = e.getMessage();
-            return responseWithListData(httpStatus, httpMessage, new ArrayList<>());
-        }
+    //error
+    @GetMapping("list")
+    public List<Endpoint> fetchAll() {
+            return endpointService.findAll();
     }
 
-    // @GetMapping("findByConfig/{configId}")
-    // public ResponseEntity<?> fetchByConfigId(@PathVariable("configId") long configId) {
-    //     HttpStatus httpStatus;
-    //     String httpMessage;
-    //     try {
-    //         List<Endpoint> fetchedData = endpointService.findByConfigId(configId);
-    //         httpStatus = HttpStatus.OK;
-    //         httpMessage = "Channel Endpoint Fetched Successfully";
-    //         return responseWithListObjectData(httpStatus, httpMessage, fetchedData);
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-    //         httpMessage = e.getMessage();
-    //         return responseWithListData(httpStatus, httpMessage, new ArrayList<>());
-    //     }
-    // }
-    @GetMapping("/by-config/{configId}")
-    public ResponseEntity<List<Endpoint>> getEndpointsByConfigId(@PathVariable NetworkCfg configId) {
-        List<Endpoint> endpoints = endpointService.getEndpointsByConfigId(configId);
-        if (endpoints.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(endpoints, HttpStatus.OK);
-    }
 
     @GetMapping("find/{endpointId}")
     public Endpoint findByEndpointId(@PathVariable("endpointId") long endpointId) {
@@ -91,22 +58,22 @@ public class EndpointResource extends ResponseResourceEntity<Object> {
         // HttpStatus httpStatus;
         // String httpMessage;
         // try {
-        //     Endpoint fetchedData = endpointService.findOne(endpointId);
-        //     if(fetchedData != null){
-        //     httpStatus = OK;
-        //     httpMessage = "Channel Endpoint Fetched Successfully";
-        //     return responseWithData(httpStatus, httpMessage, fetchedData);
-        //     } else {
-        //         httpStatus = HttpStatus.NOT_FOUND;
-        //         httpMessage = "Data not found";
-        //         return response(httpStatus, httpMessage);
-    
-        //     }
+        // Endpoint fetchedData = endpointService.findOne(endpointId);
+        // if(fetchedData != null){
+        // httpStatus = OK;
+        // httpMessage = "Channel Endpoint Fetched Successfully";
+        // return responseWithData(httpStatus, httpMessage, fetchedData);
+        // } else {
+        // httpStatus = HttpStatus.NOT_FOUND;
+        // httpMessage = "Data not found";
+        // return response(httpStatus, httpMessage);
+
+        // }
         // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     httpStatus = INTERNAL_SERVER_ERROR;
-        //     httpMessage = e.getMessage();
-        //     return responseWithData(httpStatus, httpMessage, null);
+        // e.printStackTrace();
+        // httpStatus = INTERNAL_SERVER_ERROR;
+        // httpMessage = e.getMessage();
+        // return responseWithData(httpStatus, httpMessage, null);
         // }
     }
 
@@ -121,11 +88,11 @@ public class EndpointResource extends ResponseResourceEntity<Object> {
 
             TransSpec transSpec = new TransSpec();
             transSpec.setSpecId(reqBody.getSpecId());
-            endpoint.setSpecId(transSpec);
+            endpoint.setSpec(transSpec);
 
             NetworkCfg networkCfg = new NetworkCfg();
             networkCfg.setConfigId(reqBody.getConfigId());
-            endpoint.setConfigId(networkCfg);
+            endpoint.setConfig(networkCfg);
 
             Endpoint fetchedData = endpointService.save(endpoint);
             httpStatus = OK;
@@ -175,7 +142,22 @@ public class EndpointResource extends ResponseResourceEntity<Object> {
     }
 
     @GetMapping("/find/spec/{specId}")
-    public List<Endpoint> getEndpointBySpec(@PathVariable("specId") Long specId){
-        return endpointService.findBySpecId(specId);
+    public List<Endpoint> getEndpointsBySpecId(@PathVariable Long specId) {
+        try {
+            return endpointService.getEndpointsBySpecId(specId);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    @GetMapping("/find/config/{configId}")
+    public List<Endpoint> getEndpointsByConfigId(@PathVariable Long configId) {
+        try { 
+            return endpointService.getEndpointsByConfigId(configId);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw e;
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo_fds2.TransactionEnginee.TransDataAttribute;
 
+import com.example.demo_fds2.TransactionEnginee.Endpoint.EndpointService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo_fds2.TransactionEnginee.Dto.DataAttrDto;
 import com.example.demo_fds2.TransactionEnginee.Endpoint.Endpoint;
 import com.example.demo_fds2.TransactionEnginee.Endpoint.EndpointRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -17,11 +19,15 @@ import java.util.*;
 public class TransDataAttributeService {
     protected final TransDataAttributeRepository transDataAttributeRepository;
     protected final EndpointRepository endpointRepository;
+    protected final EndpointService endpointService;
+
 
     @Autowired
-    public TransDataAttributeService(TransDataAttributeRepository transDataAttributeRepository, EndpointRepository endpointRepository) {
+    public TransDataAttributeService(TransDataAttributeRepository transDataAttributeRepository, EndpointRepository endpointRepository, EndpointService endpointService) {
         this.transDataAttributeRepository = transDataAttributeRepository;
         this.endpointRepository = endpointRepository;
+        this.endpointService = endpointService;
+
     }
     @Autowired
     private ModelMapper modelMapper;
@@ -30,17 +36,26 @@ public class TransDataAttributeService {
         return transDataAttributeRepository.findAll();
     }
 
-    public DataAttrDto save(DataAttrDto attrDto) {
-        TransDataAttribute transDataAttribute = modelMapper.map(attrDto, TransDataAttribute.class);
-        
-        Endpoint endpoint = endpointRepository.findById(attrDto.getEndpointId())
-            .orElseThrow(() -> new RuntimeException("Data not found"));
-        
-        transDataAttribute.setEndpointId(endpoint);
-        
-        TransDataAttribute savedAttribute = transDataAttributeRepository.save(transDataAttribute);
-        
-        return modelMapper.map(savedAttribute, DataAttrDto.class);
+    @Transactional
+    public TransDataAttribute createDataAttribute(DataAttrDto dataAttrDto) {
+        Endpoint endpoint = endpointService.findOne(dataAttrDto.getEndpointId());
+
+        // Check if the attribute already exists
+        Optional<TransDataAttribute> existingAttribute = transDataAttributeRepository.findByAttributeAndEndpoint_EndpointIdAndParentId(
+                dataAttrDto.getAttribute(), dataAttrDto.getEndpointId(), dataAttrDto.getParentId());
+        if (existingAttribute.isPresent()) {
+            throw new IllegalArgumentException("Data attribute already exists for the given endpoint and parent id");
+        }
+
+        TransDataAttribute dataAttribute = new TransDataAttribute();
+        dataAttribute.setAttribute(dataAttrDto.getAttribute());
+        dataAttribute.setFieldTag(dataAttrDto.getFieldTag());
+        dataAttribute.setDescription(dataAttrDto.getDescription());
+        dataAttribute.setStateType(dataAttrDto.getStateType());
+        dataAttribute.setParentId(dataAttrDto.getParentId());
+        dataAttribute.setDataType(dataAttrDto.getDataType());
+        dataAttribute.setEndpoint(endpoint);
+        return transDataAttributeRepository.save(dataAttribute);
     }
 
     public TransDataAttribute update(TransDataAttribute reqbody){
@@ -59,9 +74,13 @@ public class TransDataAttributeService {
         .orElseThrow(()-> new EntityNotFoundException("data not foundd"));
     }
 
-    public List<TransDataAttribute> fetchAllByEndpointId(Long endpointId) {
-        return transDataAttributeRepository.findAllByEndpointId(endpointId);
+    public List<TransDataAttribute> getDataAttributesByEndpointId(Long endpointId) {
+        return transDataAttributeRepository.findByEndpoint_EndpointId(endpointId);
     }
+
+//    public List<TransDataAttribute> findByStateType(String stateType) {
+//        return transDataAttributeRepository.findByStateType(stateType);
+//    }
 
     public void removeOne(Long attrId){
         transDataAttributeRepository.deleteById(attrId);

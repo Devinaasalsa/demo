@@ -25,9 +25,9 @@ public class TransSpec implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "specId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<Endpoint> endpoints;
+    private Set<NetworkCfg> networkCfgs;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "specId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<NetworkCfg> networkCfgs;
+    @OneToMany(mappedBy = "spec", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Endpoint> endpoints;
 }

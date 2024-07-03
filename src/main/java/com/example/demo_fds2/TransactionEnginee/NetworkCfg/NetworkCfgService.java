@@ -20,7 +20,7 @@ public class NetworkCfgService {
     @Autowired
     private TransSpecService transSpecService;
 
-    public Iterable<NetworkCfg> findAll() {
+    public List<NetworkCfg> findAll() {
         return networkCfgRepository.findAll();
     }
 
@@ -48,4 +48,6 @@ public class NetworkCfgService {
         }
         return networkCfgRepository.findBySpecId(transSpec);
     }
+
+
 }

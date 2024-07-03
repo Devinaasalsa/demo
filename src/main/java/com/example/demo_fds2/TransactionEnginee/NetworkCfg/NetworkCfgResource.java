@@ -9,9 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import com.example.demo_fds2.TransactionEnginee.Domain.ResponseResourceEntity;
 
 import com.example.demo_fds2.TransactionEnginee.Dto.NetworkCfgDto;
 import com.example.demo_fds2.TransactionEnginee.Dto.ResponseData;
+
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("/api/networkCfg")
@@ -24,7 +28,7 @@ public class NetworkCfgResource {
     private ModelMapper modelMapper;
 
     @GetMapping
-    public Iterable<NetworkCfg> findAll() {
+    public List<NetworkCfg> findAll() {
         return networkCfgService.findAll();
     }
 

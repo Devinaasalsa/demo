@@ -11,5 +11,6 @@ public interface NetworkCfgRepository extends JpaRepository<NetworkCfg, Long> {
     List<NetworkCfg> findByPortNumberContainsOrderByConfigIdAsc(String name);
     List<NetworkCfg> findBySpecId(TransSpec specId);
 
+    NetworkCfg findTopByOrderByConfigIdAsc();
     
 }

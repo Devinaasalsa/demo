@@ -6,10 +6,12 @@ import lombok.Setter;
 import javax.persistence.*;
 
 import com.example.demo_fds2.TransactionEnginee.TransSpec.TransSpec;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.example.demo_fds2.TransactionEnginee.NetworkCfg.NetworkCfg;
 import com.example.demo_fds2.TransactionEnginee.TransDataAttribute.TransDataAttribute;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @Setter
@@ -26,12 +28,15 @@ public class Endpoint implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "spec_id", referencedColumnName = "specId")
-    private TransSpec specId;
+    private TransSpec spec;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "config_id", referencedColumnName = "configId")
-    private NetworkCfg configId;
+    private NetworkCfg config;
 
-    @OneToMany(mappedBy = "endpointId", fetch = FetchType.EAGER)
-    private Set<TransDataAttribute> dataAttributes;
+    @JsonIgnore
+    @OneToMany(mappedBy = "endpoint", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<TransDataAttribute> dataAttributes;
+
+
 }

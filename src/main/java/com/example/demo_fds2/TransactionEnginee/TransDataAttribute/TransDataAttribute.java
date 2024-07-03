@@ -1,5 +1,6 @@
 package com.example.demo_fds2.TransactionEnginee.TransDataAttribute;
 
+import com.example.demo_fds2.TransactionEnginee.Constant.StateType;
 import com.example.demo_fds2.TransactionEnginee.Endpoint.Endpoint;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,13 @@ public class TransDataAttribute implements Serializable {
     private String fieldTag;
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private StateType stateType;
+
+    private Long parentId;
+    private String dataType;
+
+    @ManyToOne
     @JoinColumn(name = "endpoint_id", referencedColumnName = "endpointId")
-    private Endpoint endpointId;
+    private Endpoint endpoint;
 }

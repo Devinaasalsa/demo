@@ -71,27 +71,31 @@ public class TransDataAttributeResource extends ResponseResourceEntity<TransData
         }
     }
 
-    @GetMapping("/listByEndpoint/{id}")
-    public ResponseEntity<?> fetchByConfigIdAndEndpointId(@PathVariable("id") long endpointId) {
-        HttpStatus httpStatus;
-        String httpMessage;
-        try {
-            List<TransDataAttribute> fetchedData = transDataAttributeService.fetchAllByEndpointId(endpointId);
-            httpStatus = HttpStatus.OK;
-            httpMessage = "Success Fetch Data";
-            return responseWithListData(httpStatus, httpMessage, fetchedData);
-        } catch (Exception e) {
-            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            httpMessage = e.getMessage();
-            return responseWithListData(httpStatus, httpMessage, new LinkedList<>());
-        }
+    @GetMapping("/listByEndpoint/{endpointId}")
+    public List<TransDataAttribute> getDataAttributesByEndpointId(@PathVariable Long endpointId) {
+        return transDataAttributeService.getDataAttributesByEndpointId(endpointId);
     }
 
 
     @PostMapping
-    public ResponseEntity<?> add(@RequestBody DataAttrDto reqbody) {
-        DataAttrDto savedAttribute = transDataAttributeService.save(reqbody);
-        return new ResponseEntity<>(savedAttribute, HttpStatus.CREATED);
+    public ResponseEntity<?> createDataAttribute(@RequestBody DataAttrDto dataAttrDto) {
+        HttpStatus httpStatus;
+        String httpMessage;
+        try {
+            TransDataAttribute createdData = transDataAttributeService.createDataAttribute(dataAttrDto);
+            httpStatus = HttpStatus.CREATED;
+            httpMessage = "Data Attribute Created Successfully";
+            return responseWithData(httpStatus, httpMessage, createdData);
+        } catch (IllegalArgumentException e) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            httpMessage = e.getMessage();
+            return responseWithData(httpStatus, httpMessage, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            httpMessage = e.getMessage();
+            return responseWithData(httpStatus, httpMessage, null);
+        }
     }
 
     @DeleteMapping("delete/{id}")

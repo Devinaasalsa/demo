@@ -26,6 +26,6 @@ public class NetworkCfg implements Serializable {
     private TransSpec specId;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "configId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "config", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Endpoint> endpoints;
 }
